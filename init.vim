@@ -21,7 +21,15 @@ lua << EOF
 require('nvim-treesitter.configs').setup({
     auto_install = true,
     highlight = { enable = true },
-    ensure_installed = { "c", "lua", "vim", "help", "python" },
+    ensure_installed = { 
+        "c",
+        "lua",
+        "vim",
+        "help",
+        "python",
+        "typescript",
+        "javascript",
+    },
 })
 EOF
 
@@ -60,6 +68,8 @@ let g:coc_global_extensions = [
       \ 'coc-html',
       \ 'coc-css',
       \ 'coc-yaml',
+      \ 'coc-pyright',
+      \ 'coc-eslint',
       \ ]
 
 " Add key mappings for Coc
