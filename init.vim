@@ -29,6 +29,7 @@ require('nvim-treesitter.configs').setup({
         "python",
         "typescript",
         "javascript",
+        "tsx",
     },
 })
 EOF
@@ -85,8 +86,10 @@ autocmd FileType typescript setl omnifunc=v:lua.coc#refresh()
 " Turn on virtual text (displaying errors inline)
 let g:coc_enable_virtual_text = 1
 
-" Show the signature help as you type
-inoremap <expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+" CoC bindings 
+inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
+inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
+inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 
 " Save the file automatically when switching buffers or leaving insert mode
 autocmd BufLeave,InsertLeave * silent! wall
