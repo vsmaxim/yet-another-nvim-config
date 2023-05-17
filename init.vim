@@ -1,3 +1,6 @@
+" Use different python venv
+let g:python3_host_prog = '$XDG_CONFIG_HOME/nvim/.venv/bin/python'
+
 " Remap mode switch
 :inoremap jk <esc>
 :inoremap ол <esc>
@@ -5,6 +8,27 @@
 
 " Set leader key
 let g:mapleader = ','
+
+" Setup search with ripgrerp
+
+" Add appropriate flags
+set grepprg=rg\ --vimgrep\ --hidden\ --follow
+
+" Start grep prompt 
+nnoremap <Leader>g :grep<Space>
+
+" Automatically open the quickfix list after running grep
+augroup GrepAutoOpen
+    autocmd!
+    autocmd QuickFixCmdPost *grep* cwindow
+augroup END
+
+" Navigate the quickfix list
+nnoremap <Leader>gn :cnext<CR>
+nnoremap <Leader>gp :cprev<CR>
+nnoremap <Leader>go :copen<CR>
+nnoremap <Leader>gc :cclose<CR>
+
 
 " Set up the plugin manager (Vim-Plug)
 call plug#begin('~/.vim/plugged')
@@ -23,6 +47,7 @@ require('nvim-treesitter.configs').setup({
     highlight = { enable = true },
     ensure_installed = { 
         "c",
+        "cpp",
         "lua",
         "vim",
         "help",
@@ -71,6 +96,7 @@ let g:coc_global_extensions = [
       \ 'coc-yaml',
       \ 'coc-pyright',
       \ 'coc-eslint',
+      \ 'coc-clangd',
       \ ]
 
 " Add key mappings for Coc
@@ -78,6 +104,12 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+
+" Coc-Pyright configuration
+nnoremap <Leader>rl :CocCommand python.runLinting<CR>
+nnoremap <Leader>si :CocCommand python.sortImports<CR>
+nnoremap <Leader>oi :CocCommand pyright.organizeimports<CR>
+nnoremap <Leader>rs :CocCommand pyright.restartserver<CR>
 
 " Set the language server for specific file types
 autocmd FileType javascript setl omnifunc=v:lua.coc#refresh()
@@ -106,5 +138,4 @@ require("oil").setup({
     }
 })
 EOF
-
 
