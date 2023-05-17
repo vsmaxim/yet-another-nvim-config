@@ -55,6 +55,7 @@ require('nvim-treesitter.configs').setup({
         "typescript",
         "javascript",
         "tsx",
+        "html",
     },
 })
 EOF
@@ -97,6 +98,7 @@ let g:coc_global_extensions = [
       \ 'coc-pyright',
       \ 'coc-eslint',
       \ 'coc-clangd',
+      \ 'coc-prettier',
       \ ]
 
 " Add key mappings for Coc
@@ -130,6 +132,9 @@ autocmd BufLeave,InsertLeave * silent! wall
 " Setup oil - for good navigation 
 nnoremap <leader>o :Oil<CR>
 nnoremap <leader>O :Oil --float<CR>
+
+" Format React and TS files on save
+autocmd BufWritePre *.ts,*.tsx,*.js,*.jsx silent! CocCommand prettier.formatFile
 
 lua << EOF
 require("oil").setup({
