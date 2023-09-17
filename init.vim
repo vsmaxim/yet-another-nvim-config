@@ -1,6 +1,3 @@
-" Use different python venv
-let g:python3_host_prog = '$XDG_CONFIG_HOME/nvim/.venv/bin/python'
-
 " Remap mode switch
 :inoremap jk <esc>
 :inoremap ол <esc>
@@ -8,8 +5,6 @@ let g:python3_host_prog = '$XDG_CONFIG_HOME/nvim/.venv/bin/python'
 
 " Set leader key
 let g:mapleader = ','
-
-" Setup search with ripgrerp
 
 " Add appropriate flags
 set grepprg=rg\ --vimgrep\ --hidden\ --follow
@@ -40,6 +35,9 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'stevearc/oil.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.2' }
+Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'jackMort/ChatGPT.nvim'
 call plug#end()
 
 " Configure tree-sitter
@@ -47,6 +45,7 @@ lua << EOF
 require('nvim-treesitter.configs').setup({
     auto_install = true,
     highlight = { enable = true },
+    ignore_install = { "help" },
     ensure_installed = { 
         "c",
         "cpp",
@@ -152,3 +151,9 @@ nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
+" Setup ChatGPT nvim
+lua << EOF
+require("chatgpt").setup({
+    api_key_cmd = "op read --no-newline op://Secrets/OpenAI/credential"
+})
+EOF
