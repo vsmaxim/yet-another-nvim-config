@@ -1,48 +1,31 @@
-" Remap mode switch
-:inoremap jk <esc>
-:inoremap ол <esc>
-:inoremap <esc> <nop>
+set clipboard=unnamedplus
 
-" Set leader key
-let g:mapleader = ','
+if exists('g:vscode')
+else
+    " Set leader key
+    let g:mapleader = ','
 
-" Add appropriate flags
-set grepprg=rg\ --vimgrep\ --hidden\ --follow
+    " Remap mode switch
+    :inoremap jk <esc>
+    :inoremap ол <esc>
+    :inoremap <esc> <nop>
 
-" Start grep prompt 
-nnoremap <Leader>g :grep<Space>
+    " Set up the plugin manager (Vim-Plug)
+    call plug#begin('~/.vim/plugged')
+        Plug 'nvim-lua/plenary.nvim'
+        Plug 'itchyny/lightline.vim'
+        Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+        Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+        Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        Plug 'stevearc/oil.nvim'
+        Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
+        Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+    call plug#end()
 
-" Automatically open the quickfix list after running grep
-augroup GrepAutoOpen
-    autocmd!
-    autocmd QuickFixCmdPost *grep* cwindow
-augroup END
-
-" Navigate the quickfix list
-nnoremap <Leader>gn :cnext<CR>
-nnoremap <Leader>gp :cprev<CR>
-nnoremap <Leader>go :copen<CR>
-nnoremap <Leader>gc :cclose<CR>
-
-
-" Set up the plugin manager (Vim-Plug)
-call plug#begin('~/.vim/plugged')
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'frenzyexists/aquarium-vim', { 'branch': 'develop' }
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'stevearc/oil.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.2' }
-Plug 'MunifTanjim/nui.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'jackMort/ChatGPT.nvim'
-call plug#end()
-
-" Configure tree-sitter
-lua << EOF
-require('nvim-treesitter.configs').setup({
+    " Setup plugins
+    lua << EOF
+require("oil").setup({ view_options = { show_hidden = true }})
+require("nvim-treesitter.configs").setup({
     auto_install = true,
     highlight = { enable = true },
     ignore_install = { "help" },
@@ -59,39 +42,40 @@ require('nvim-treesitter.configs').setup({
         "html",
     },
 })
+
+require("telescope").setup()
+require("telescope").load_extension("fzf")
 EOF
 
-" Enable syntax highlighting and indenting
-syntax on
-filetype plugin indent on
+    " Enable syntax highlighting and indenting
+    syntax on
+    filetype plugin indent on
 
-" Use a different color scheme
-set termguicolors
-set background=dark
-colorscheme aquarium
+    " Setup colorscheme
+    set termguicolors
+    colorscheme catppuccin-latte
+    let g:lightline = {'colorscheme': 'catppuccin-latte'}
 
-let g:aquarium_style='dark'
-let g:airline_theme='minimalist'
+    " Save the file automatically when switching buffers or leaving insert mode
+    autocmd BufLeave,InsertLeave * silent! wall
 
-" Set the tab width to 2 spaces
-set tabstop=4
-set shiftwidth=4
-set expandtab
+    " Indentation
+    set tabstop=4
+    set shiftwidth=4
+    set expandtab
 
-" Use relative line numbers and enable the status line
-set relativenumber
-set laststatus=2
+    " Visible
+    set relativenumber
+    set laststatus=2
 
-" Enable searching with case sensitivity
-set ignorecase
-set smartcase
+    " Enable searching with case sensitivity
+    set ignorecase
+    set smartcase
 
-" Set the clipboard to use the system clipboard
-set clipboard=unnamedplus
-
-" Configure Coc
-let g:coc_global_extensions = [
+    " CoC configs
+    let g:coc_global_extensions = [
       \ 'coc-tsserver',
+      \ 'coc-sh',
       \ 'coc-json',
       \ 'coc-html',
       \ 'coc-css',
@@ -100,60 +84,45 @@ let g:coc_global_extensions = [
       \ 'coc-eslint',
       \ 'coc-clangd',
       \ 'coc-prettier',
+      \ 'coc-rust-analyzer',
       \ ]
 
-" Add key mappings for Coc
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+    set updatetime=300
+    set signcolumn=yes
 
-" Coc-Pyright configuration
-nnoremap <Leader>rl :CocCommand python.runLinting<CR>
-nnoremap <Leader>si :CocCommand python.sortImports<CR>
-nnoremap <Leader>oi :CocCommand pyright.organizeimports<CR>
-nnoremap <Leader>rs :CocCommand pyright.restartserver<CR>
+    " CoC bindings
+    inoremap <silent><expr> <c-space> coc#refresh()
 
-" Set the language server for specific file types
-autocmd FileType javascript setl omnifunc=v:lua.coc#refresh()
-autocmd FileType typescript setl omnifunc=v:lua.coc#refresh()
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
 
-" Turn on virtual text (displaying errors inline)
-let g:coc_enable_virtual_text = 1
+    inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
+    inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
+    inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 
-" CoC bindings 
-inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
-inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
-inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
+    nnoremap <Leader>rl :CocCommand python.runLinting<CR>
+    nnoremap <Leader>si :CocCommand python.sortImports<CR>
+    nnoremap <Leader>oi :CocCommand pyright.organizeimports<CR>
+    nnoremap <Leader>rs :CocCommand pyright.restartserver<CR>
 
-" Save the file automatically when switching buffers or leaving insert mode
-autocmd BufLeave,InsertLeave * silent! wall
+    " Format React and TS files on save
+    autocmd BufWritePre *.ts,*.tsx,*.js,*.jsx silent! CocCommand prettier.formatFile
+    autocmd BufWritePre *.rs :call CocAction('runCommand', 'editor.action.formatDocument')
 
+    " Setup oil - for better navigation
+    nnoremap <leader>o :Oil<CR>
+    nnoremap <leader>O :Oil --float<CR>
 
-" Setup oil - for good navigation 
-nnoremap <leader>o :Oil<CR>
-nnoremap <leader>O :Oil --float<CR>
+    " Find files using Telescope command-line sugar.
+    nnoremap <leader>ff <cmd>Telescope find_files<cr>
+    nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+    nnoremap <leader>fb <cmd>Telescope buffers<cr>
+    nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
-" Format React and TS files on save
-autocmd BufWritePre *.ts,*.tsx,*.js,*.jsx silent! CocCommand prettier.formatFile
+    " Map splits
+    nnoremap <leader>sr :vsplit<CR>
+    nnoremap <leader>sb :split<CR>
 
-lua << EOF
-require("oil").setup({
-    view_options = {
-        show_hidden = true
-    }
-})
-EOF
-
-" Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-
-" Setup ChatGPT nvim
-lua << EOF
-require("chatgpt").setup({
-    api_key_cmd = "op read --no-newline op://Secrets/OpenAI/credential"
-})
-EOF
+endif
